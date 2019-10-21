@@ -1,0 +1,217 @@
+﻿@model  IEnumerable<ChefsWonders.ViewModels.OrderCommonViewModel>
+
+@{
+    ViewBag.Title = "Assign Chef's";
+}
+
+<h2> Chef's Wonders - Order ID @ViewBag.OrderID </h2>
+
+
+
+<table class="table" id="OrderDetails">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderDetailsID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodTypeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodCategoryName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ChefID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StatusCode)
+            </th>
+            
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDetailsID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodTypeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodCategoryName)
+                </td>
+                <td class="fa fa-inr">
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DropDownListFor(modelItem => item.ChefID, new SelectList(ViewBag.Chefs, "ChefID", "ChefName", item.ChefID), "", new { @class = "form-control mandate", @id = "Chefs" })
+                </td>
+                <td>
+                    @Html.DropDownListFor(modelItem => item.StatusCode, new SelectList(ViewBag.StatusMaster, "statuscode", "status", item.StatusCode), "", new { @class = "form-control mandate", @id = "Status" })
+                </td>
+                
+            </tr>
+        
+    }
+        </tbody>
+
+</table>
+<br />
+<p>
+
+    @Html.ActionLink("Back to List", "../Orders/Index")
+    <input type="button" value="Assign" id="btnAssign" class="btn btn-primary" style="float:right" />
+    <input type="button" value="Order Update" id="btnOrderUpdate" class="btn btn-success" style="float:right" />
+</p>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<link rel="stylesheet" type="text/css" href="~/Content/DataTables/media/css/jquery.dataTables.css" />
+<script type="text/javascript" src="~/Scripts/DataTables/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#OrderDetails").dataTable();
+            var chefs = @ViewBag.Assigned.ToString().ToLower();
+
+            var orderprepared = @ViewBag.OrderPrepared.ToString().ToLower();
+
+            if(orderprepared == true)
+            {
+                $("#OrderDetails TBODY TR").each(function () {
+                    $(this).find('#Chefs').attr("disabled", true);
+                    $(this).find('#Status').attr("disabled", true);
+                });
+                $("#btnAssign").hide();
+                $("#btnOrderUpdate").hide();
+            }
+            else if(chefs == true)
+            {
+                $("#OrderDetails TBODY TR").each(function () {
+                    $(this).find('#Chefs').attr("disabled", true);
+                    $(this).find("#Status option[value='5']").remove();
+                });
+                $("#btnAssign").hide();
+            }
+            else
+            {
+                $("#OrderDetails TBODY TR").each(function () {
+                    $(this).find('#Status').attr("disabled", true);
+                });
+                $("#btnOrderUpdate").hide();
+            }
+
+
+            //alert("ready");
+            $("#btnAssign").click(function () {
+                var orderItemsChefs = new Array();
+                var orderID = @ViewBag.OrderID;
+                var assignedcount = 0;
+                $("#OrderDetails TBODY TR").each(function () {
+
+                    //alert("btnclicked");
+                    var row = $(this);
+                    var item = {};
+                    if(row.find('#Chefs').val() > 0)
+                    {
+                        item.OrderDetailsID = row.find("TD").eq(0).html().trim();
+                        item.FoodItemName = row.find("TD").eq(1).html().trim();
+                        item.FoodTypeName = row.find("TD").eq(2).html().trim();
+                        item.FoodCategoryName = row.find("TD").eq(3).html().trim();
+                        item.Price = row.find("TD").eq(4).html().trim();
+                        item.Quantity = row.find("TD").eq(5).html().trim();
+                        item.ChefID = row.find('#Chefs').val();
+                        item.OrderID = orderID;
+                        orderItemsChefs.push(item);
+                        assignedcount++;
+                    }
+                });
+                if(assignedcount > 0)
+                {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("AssignChefs", "OrderDetails")',
+                        async: false,
+                        traditional: true,
+                        data: JSON.stringify(orderItemsChefs),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (r) {
+                            location.href = '@Url.Action("Index", "Orders")';
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Please assign chefs")
+                }
+                
+            });
+
+            $("#btnOrderUpdate").click(function () {
+                var updateorderstatus = new Array();
+                var orderID = @ViewBag.OrderID;
+                var updateordercount = 0;
+                $("#OrderDetails TBODY TR").each(function () {
+
+                    //alert("btnclicked");
+                    var row = $(this);
+                    var item = {};
+                    if (row.find('#Status').val() > 0)
+                    {
+                        item.OrderDetailsID = row.find("TD").eq(0).html().trim();
+                        item.FoodItemName = row.find("TD").eq(1).html().trim();
+                        item.FoodTypeName = row.find("TD").eq(2).html().trim();
+                        item.FoodCategoryName = row.find("TD").eq(3).html().trim();
+                        item.Price = row.find("TD").eq(4).html().trim();
+                        item.Quantity = row.find("TD").eq(5).html().trim();
+                        item.ChefID = row.find('#Chefs').val();
+                        item.StatusCode = row.find('#Status').val();
+                        item.OrderID = orderID;
+                        updateorderstatus.push(item);
+                        updateordercount++;
+                    }
+                    
+                });
+                if(updateordercount > 0)
+                {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("UpdateOrder", "OrderDetails")',
+                        async: false,
+                        traditional: true,
+                        data: JSON.stringify(updateorderstatus),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (r) {
+                            location.href = '@Url.Action("Index", "Orders")';
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Please update atleasr 1 item status");
+                }
+                
+            });
+            
+        });
+    </script>
+}

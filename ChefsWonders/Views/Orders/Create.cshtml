@@ -1,0 +1,152 @@
+﻿@model  IEnumerable<ChefsWonders.ViewModels.OrderCommonViewModel>
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2> Take Order - Chef's Wonder</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <table class="table" id="menu">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FoodItemName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FoodTypeName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FoodCategoryName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Price)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Quantity)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FoodSelect)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            @foreach (var item in Model)
+            {
+                <tbody>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FoodItemName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FoodTypeName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FoodCategoryName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Price)
+                        </td>
+                        <td>                            
+                            @*@Html.DropDownListFor(modelItem => item.Quantity, Enumerable.Range(0, 10).Select(i => new SelectListItem { Text = i.ToString(), Value = i.ToString() }), new { @class = "form-control mandate", @id = "Quantity" })*@                            
+                            <input type="number" class="form-control" min="0" id="Quantity" value="0" style="width:100px"/>
+                        </td>
+                        <td>
+                            @Html.CheckBoxFor(modelItem => item.FoodSelect)
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            }
+
+        </table>
+
+
+        
+                
+            
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+    <input type="button" value="Create Order" id="btnSave" class="btn btn-primary" />
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<link rel="stylesheet" type="text/css" href="~/Content/DataTables/media/css/jquery.dataTables.css" />
+<script type="text/javascript" src="~/Scripts/DataTables/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#menu").dataTable();
+            //debugger;
+            //alert("ready")
+            $("#btnSave").click(function () {
+                var items = new Array();
+                var itemcount = 0;
+                var itemquantity = 0;
+                $("#menu TBODY TR").each(function () {
+
+                    //alert("btnclicked")
+                    var row = $(this);
+                    var item = {};
+                    if (row.find('input[type="checkbox"]').is(':checked')) {
+                        item.FoodItemName = row.find("TD").eq(0).html().trim();
+                        item.FoodTypeName = row.find("TD").eq(1).html().trim();
+                        item.FoodCategoryName = row.find("TD").eq(2).html().trim();
+                        item.Price = row.find("TD").eq(3).html().trim();
+                        item.Quantity = row.find('#Quantity').val();
+                        //item.Quantity = row.find('input[type="dropdown"]:selected').val();
+                        //item.Quantity = row.eq(4).find('input,select').val();
+
+                        //item.FoodSelect = row.find("TD").eq(5).find("input[type=checkbox]:checked");
+                        //alert(item.FoodSelect);
+                        if (item.Quantity > 0)
+                        {
+                            items.push(item);
+                            itemcount++;
+                        }
+                        else
+                        {
+                            itemquantity++;
+                        }
+
+                    }
+                });
+                if (itemcount > 0)
+                {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("InsertDetails", "Orders")',
+                        async: false,
+                        traditional: true,
+                        data: JSON.stringify(items),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (r) {
+                            location.href = '@Url.Action("Index", "Orders")';
+                        }
+                    });
+                }
+                else {
+                    alert("Please Select Items & Quantity");
+                }
+
+            });
+        });
+    </script>
+}
+

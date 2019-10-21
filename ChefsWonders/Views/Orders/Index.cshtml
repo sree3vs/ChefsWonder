@@ -1,0 +1,89 @@
+﻿@model IEnumerable<ChefsWonders.Models.Order>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Chef's Wonder - Orders</h2>
+
+<p>
+    @Html.ActionLink("Create New Order", "Create")
+</p>
+<table class="table" id="Orders">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.statusMaster.status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderDate)
+            </th>
+
+            <th>View</th>
+        </tr>
+    </thead>
+<tbody>
+    @foreach (var item in Model)
+    {
+        var icon = "";
+        var billicon = "";
+        switch (item.statuscode)
+        {
+            case 3:
+                icon = "<i class=\"fa fa-square\" style=\"color:blue;\"></i>";
+                break;
+            case 6:
+                icon = "<i class=\"fa fa-square\" style=\"color:green;\"></i>";
+                billicon = "<i class=\"fa fa-file-pdf-o fa-2x\" style=\"color:green;\"></i>";
+                break;
+            case 7:
+                icon = "<i class=\"fa fa-check-square\" style=\"color:green;\"></i>";
+                billicon = "<i class=\"fa fa-file-pdf-o fa-2x\" style=\"color:green;\"></i>";
+                break;
+            case 8:
+                icon = "<i class=\"fa fa-square\" style=\"color:yellow;\"></i>";
+                break;
+            default:
+                icon = "<i class=\"fa fa-square\" style=\"color:green;\"></i>";
+                break;
+        }
+
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderID)
+            </td>
+            <td>
+                @Html.Raw(icon)
+                @Html.DisplayFor(modelItem => item.statusMaster.status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderDate)
+            </td>
+            <td>
+                <a href="@Url.Action("Details", "OrderDetails",new { id=item.OrderID })" class="btn btn-primary">
+                    <span>
+                        <strong>Details</strong>
+                    </span>
+                </a>
+                <a href="@Url.Action("GetBill","OrderDetails",new {id=item.OrderID})">@Html.Raw(billicon)</a>
+            </td>
+
+        </tr>
+
+    }
+</tbody>
+
+</table>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <link rel="stylesheet" type="text/css" href="~/Content/DataTables/media/css/jquery.dataTables.css" />
+    <script type="text/javascript" src="~/Scripts/DataTables/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#Orders").dataTable();
+        });
+    </script>
+}

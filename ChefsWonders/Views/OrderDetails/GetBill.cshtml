@@ -1,0 +1,112 @@
+﻿@model  IEnumerable<ChefsWonders.ViewModels.OrderCommonViewModel>
+@{
+    ViewBag.Title = "GetBill";
+}
+
+<h2> Detailed Bill - Order ID @ViewBag.OrderID </h2>
+
+<table class="table" id="OrderDetails">
+    <thead>
+        <tr>
+            @*<th>
+                @Html.DisplayNameFor(model => model.OrderDetailsID)
+            </th>*@
+            
+            <th>
+                @Html.DisplayNameFor(model => model.FoodTypeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodCategoryName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.Label("Total Price")
+            </th>
+        </tr>
+    </thead>
+    @foreach (var item in Model)
+    {
+        var icon = "";        
+        switch (item.FoodTypeName)
+        {
+            case "Non Veg":
+                icon = "<i class=\"fa fa-circle\" style=\"color:red;\"></i>";
+                break;
+            case "Veg":
+                icon = "<i class=\"fa fa-circle\" style=\"color:green;\"></i>";                
+                break;            
+            default:
+                icon = "<i class=\"fa fa-circle\" style=\"color:green;\"></i>";
+                break;
+        }
+        var totalamount = (item.Quantity * item.Price).ToString();
+        <tbody>
+            <tr>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.OrderDetailsID)
+                </td>*@
+                
+                <td>
+                    @Html.Raw(icon)
+                    @Html.DisplayFor(modelItem => item.FoodTypeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodCategoryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodItemName)
+                </td>
+                <td class="fa fa-inr">
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td class="fa fa-inr">
+                    @Html.Label(totalamount)
+                </td>
+            </tr>
+        </tbody>        
+    }
+    <tfoot>
+        <tr>
+            @*<td></td>*@
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+            <strong>Total Bill</strong>
+            </td>
+            <td class="fa fa-inr"></td>
+        </tr>
+    </tfoot>
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {            
+                calculateColumn(5);            
+        });
+
+        function calculateColumn(index) {
+            var total = 0;
+            $('table tr').each(function() {
+                var value = parseInt($('td', this).eq(index).text());
+                if (!isNaN(value)) {
+                    total += value;
+                }
+            });
+            $('table tfoot td').eq(index).text(total);
+        }
+</script>
+}

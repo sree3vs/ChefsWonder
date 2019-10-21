@@ -1,0 +1,64 @@
+﻿@model IEnumerable<ChefsWonders.Models.FoodItem>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table" id="fooditems">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.foodCategory.FoodCategoryName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.foodType.FoodTypeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FoodItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.foodCategory.FoodCategoryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.foodType.FoodTypeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FoodItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.FoodItemID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.FoodItemID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.FoodItemID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <link rel="stylesheet" type="text/css" href="~/Content/DataTables/media/css/jquery.dataTables.css" />
+    <script type="text/javascript" src="~/Scripts/DataTables/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#fooditems").dataTable();
+        });
+    </script>
+}
